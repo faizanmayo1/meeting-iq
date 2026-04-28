@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>MeetingIQ — Client Demo Script · Northwind Inc.</title>
+<link rel="preconnect" href="https://rsms.me/" />
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --canvas: #FBF5FA;
+  --surface: #FFFFFF;
+  --subtle: #F4EEF7;
+  --border-soft: #ECE3EF;
+  --border: #E1D6E5;
+  --ink: #1B0D27;
+  --ink-2: #3D2A4A;
+  --ink-3: #6B5A78;
+  --brand-300: #FF70BF;
+  --brand: #D552A3;
+  --brand-600: #831C91;
+  --brand-700: #462C7D;
+  --accent: #16B5C4;
+  --accent-50: #E1F7FA;
+  --success: #0E9F6E;
+  --warning: #D97706;
+  --danger: #DC2626;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "InterVariable", "Inter", -apple-system, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  color: var(--ink);
+  background: white;
+  line-height: 1.55;
+  font-size: 11pt;
+}
+.page {
+  page-break-after: always;
+  padding: 64px 56px 56px;
+  max-width: 8.5in;
+  margin: 0 auto;
+  position: relative;
+}
+.page:last-child { page-break-after: auto; }
+.brand-strip {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 6px;
+  background: linear-gradient(90deg, var(--brand-700) 0%, var(--brand-600) 35%, var(--brand) 70%, var(--brand-300) 100%);
+}
+h1, h2, h3, h4 {
+  font-family: "Fraunces", "Inter", serif;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+h1 { font-size: 30pt; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; }
+h2 { font-size: 18pt; line-height: 1.2; font-weight: 600; }
+h3 { font-size: 13pt; line-height: 1.3; font-weight: 600; }
+h4 { font-size: 10.5pt; line-height: 1.3; font-weight: 600; font-family: "InterVariable", "Inter", sans-serif; }
+p { margin: 0 0 10px; }
+.muted { color: var(--ink-3); }
+.secondary { color: var(--ink-2); }
+
+.caption {
+  font-size: 8.5pt;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.brand-mark .logo {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-700));
+  color: white;
+  display: grid; place-items: center;
+  font-family: "Fraunces", serif; font-weight: 600;
+  font-size: 16pt; line-height: 1;
+  position: relative;
+}
+.brand-mark .logo::after {
+  content: "";
+  position: absolute; bottom: -3px; right: -3px;
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--accent);
+  border: 2px solid white;
+}
+.brand-mark .name { font-family: "Fraunces", serif; font-weight: 600; font-size: 13pt; letter-spacing: -0.01em; }
+.brand-mark .sub { font-size: 8pt; color: var(--ink-3); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 2px; }
+
+.cover {
+  min-height: calc(11in - 64px);
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+}
+.cover-title {
+  font-family: "Fraunces", serif;
+  font-size: 56pt;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  margin: 60px 0 24px;
+}
+.cover-title em {
+  font-style: italic;
+  background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand) 50%, var(--brand-300) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.cover-sub {
+  font-size: 14pt;
+  color: var(--ink-2);
+  max-width: 540px;
+  line-height: 1.45;
+}
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px 32px;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 24px;
+  margin-top: 48px;
+}
+.meta-item .caption { margin-bottom: 4px; }
+.meta-item .v { font-size: 11pt; font-weight: 500; color: var(--ink); }
+
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 14px;
+  margin-bottom: 24px;
+}
+.section-head .num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10pt;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+.callout {
+  background: var(--subtle);
+  border-left: 3px solid var(--brand);
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin: 14px 0;
+}
+.callout.ai {
+  border-left-color: var(--accent);
+  background: linear-gradient(90deg, rgba(22,181,196,0.06), rgba(213,82,163,0.04));
+}
+.callout .label {
+  font-size: 8pt;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.callout.brand .label { color: var(--brand-600); }
+.script {
+  font-family: "Fraunces", serif;
+  font-size: 12.5pt;
+  font-weight: 500;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--ink);
+  margin: 12px 0;
+}
+.script::before { content: "\201C"; color: var(--ink-3); margin-right: 2px; }
+.script::after  { content: "\201D"; color: var(--ink-3); margin-left: 2px; }
+
+.action-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px dashed var(--border-soft);
+  align-items: baseline;
+}
+.action-row:first-of-type { border-top: 0; }
+.action-row .timing {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9pt;
+  color: var(--brand-600);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.action-row .what { color: var(--ink-2); font-size: 10pt; }
+.action-row .what strong { color: var(--ink); font-weight: 600; }
+
+.screen-card {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  background: white;
+  page-break-inside: avoid;
+}
+.screen-card .head {
+  display: flex; align-items: baseline; gap: 10px;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+.screen-card .head .num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9.5pt;
+  background: var(--subtle);
+  color: var(--ink-2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.screen-card .head h3 { flex: 1; }
+.screen-card .head .duration {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9pt;
+  color: var(--ink-3);
+}
+
+.kicker {
+  font-size: 8.5pt;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+ul.beats, ul.tips {
+  margin: 4px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+ul.beats li, ul.tips li {
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 6px;
+  color: var(--ink-2);
+  font-size: 10pt;
+}
+ul.beats li::before {
+  content: "";
+  position: absolute; left: 0; top: 8px;
+  width: 6px; height: 6px;
+  border-radius: 999px;
+  background: var(--brand);
+}
+ul.tips li::before {
+  content: "\2192";
+  position: absolute; left: 0; top: 0;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+table.objections {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+table.objections th, table.objections td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 12px;
+  font-size: 10pt;
+}
+table.objections thead th {
+  font-size: 8.5pt;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--border);
+}
+table.objections tbody tr td:first-child {
+  width: 36%;
+  font-weight: 500;
+  color: var(--ink);
+}
+table.objections tbody tr td:nth-child(2) {
+  color: var(--ink-2);
+}
+table.objections tbody tr {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.close {
+  background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-600) 50%, var(--brand) 100%);
+  color: white;
+  padding: 56px 56px 48px;
+  border-radius: 16px;
+  margin-top: 24px;
+  position: relative;
+}
+.close::before {
+  content: "";
+  position: absolute; inset: 1px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.04), transparent);
+  pointer-events: none;
+}
+.close .label {
+  font-size: 8.5pt; letter-spacing: 0.18em; text-transform: uppercase;
+  font-weight: 600; opacity: 0.7;
+}
+.close h2 {
+  color: white;
+  font-size: 28pt; line-height: 1.15;
+  margin-top: 12px;
+  font-family: "Fraunces", serif;
+}
+.close .sub {
+  color: rgba(255,255,255,0.85);
+  font-size: 12pt;
+  margin-top: 14px;
+  max-width: 540px;
+}
+
+footer.page-footer {
+  position: absolute;
+  bottom: 28px; left: 56px; right: 56px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 8.5pt;
+  color: var(--ink-3);
+  letter-spacing: 0.06em;
+}
+footer.page-footer .seq {
+  font-family: "JetBrains Mono", monospace;
+}
+
+@page { size: Letter; margin: 0; }
+@media print {
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="page cover">
+  <div class="brand-strip"></div>
+  <div>
+    <div class="brand-mark">
+      <div class="logo">M</div>
+      <div>
+        <div class="name">MeetingIQ</div>
+        <div class="sub">Northwind Inc.</div>
+      </div>
+    </div>
+    <div class="caption">Client demo script</div>
+    <h1 class="cover-title">From meetings to <em>outcomes</em>.</h1>
+    <p class="cover-sub">A 22-minute walkthrough of MeetingIQ — the AI Outcome Orchestration platform that turns conversation into measurable business outcomes.</p>
+  </div>
+  <div class="cover-meta">
+    <div class="meta-item"><div class="caption">Audience</div><div class="v">Stefan Trifan · Operations leadership</div></div>
+    <div class="meta-item"><div class="caption">Duration</div><div class="v">22 minutes &middot; 5 minutes Q&amp;A</div></div>
+    <div class="meta-item"><div class="caption">Format</div><div class="v">Live walkthrough &middot; seeded with Northwind data</div></div>
+    <div class="meta-item"><div class="caption">Stage</div><div class="v">Discovery &rarr; live product</div></div>
+  </div>
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Cover &middot; 01</span>
+  </footer>
+</section>
+
+<!-- OPENING -->
+<section class="page">
+  <div class="brand-strip"></div>
+  <div class="section-head">
+    <h2>Opening &middot; 60 seconds</h2>
+    <span class="num">02</span>
+  </div>
+
+  <p class="caption">What you say first</p>
+  <p class="script">Stefan, before I open the product — one question. On a normal Monday, by the time you sit down with coffee, how many meetings has your leadership already had? Five? Ten? And of those, how many produced a decision someone owns by Friday? MeetingIQ's job is to make every one of those meetings produce an outcome — automatically.</p>
+
+  <div class="callout brand">
+    <div class="label">Why this opening works</div>
+    <p>It anchors the demo to a real moment in their week and contrasts <em>volume of meetings</em> with <em>quality of outcomes</em> — the gap every operations leader feels but can't measure. Don't open with capabilities. Open with the gap.</p>
+  </div>
+
+  <p class="kicker">Set the rules of the room</p>
+  <ul class="tips">
+    <li>This is live. Data is seeded with Northwind's Q3 enterprise rollout — Halcyon Health, Mercer &amp; Pratt, your real lanes of conflict.</li>
+    <li>Promise: <em>three concrete dollar moments</em> in the next 22 minutes. They don't need to keep notes — you'll send the recap.</li>
+    <li>Invite interrupts. The best demos have the buyer reaching for the trackpad.</li>
+  </ul>
+
+  <p class="kicker">If asked "what is this exactly?"</p>
+  <p class="script">Think of MeetingIQ as a layer above Zoom, Slack, and Jira. It reads every meeting transcript, extracts decisions and actions with owners and deadlines, syncs them to your task systems, and tells you when two teams just made conflicting decisions. Your tools stay where they are. Decision-making moves up.</p>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Opening &middot; 02</span>
+  </footer>
+</section>
+
+<!-- SPINE -->
+<section class="page">
+  <div class="brand-strip"></div>
+  <div class="section-head">
+    <h2>Demo flow &middot; the spine</h2>
+    <span class="num">03</span>
+  </div>
+
+  <p class="secondary">Eight screens. One narrative — Monday morning. The same hero meeting (Q3 Enterprise Rollout · Steering), the same hero decision (phased plan vs Sales' Aug 14 commit), and the same $1.2M conflict appear on every screen, so the buyer feels the system snap together.</p>
+
+  <div class="action-row"><span class="timing">00:00&ndash;02:30</span><span class="what"><strong>Executive Dashboard</strong> &mdash; set the scene. KPIs, alignment-conflict hero, AI insights, 4E radar showing this week's engagement drop.</span></div>
+  <div class="action-row"><span class="timing">02:30&ndash;06:00</span><span class="what"><strong>Meeting detail Sheet</strong> &mdash; click into Q3 Steering. Show the transcript with inline AI extractions (decisions, actions, risks).</span></div>
+  <div class="action-row"><span class="timing">06:00&ndash;09:00</span><span class="what"><strong>Decision Graph</strong> &mdash; the cross-team conflict made visible. Pulsing red edge between Phased plan and Sales commit.</span></div>
+  <div class="action-row"><span class="timing">09:00&ndash;11:30</span><span class="what"><strong>Actions &amp; Decisions</strong> &mdash; auto-extracted items, AI confidence chips, synced to Jira / Asana / Slack.</span></div>
+  <div class="action-row"><span class="timing">11:30&ndash;14:00</span><span class="what"><strong>Knowledge Memory</strong> &mdash; the wow moment. Ask <em>"What did we decide about the Q3 rollout?"</em> Get a cited answer.</span></div>
+  <div class="action-row"><span class="timing">14:00&ndash;17:00</span><span class="what"><strong>Velocity + Risks + Workflows</strong> &mdash; Product team overload, the alignment risk in the queue, the agent handling routine work.</span></div>
+  <div class="action-row"><span class="timing">17:00&ndash;19:30</span><span class="what"><strong>Settings &rarr; Integrations</strong> &mdash; the trust beat. Calendar, Zoom, Teams, Slack, Salesforce, Jira, Asana, Notion all plug in.</span></div>
+  <div class="action-row"><span class="timing">19:30&ndash;22:00</span><span class="what"><strong>Close</strong> &mdash; the ROI math + a date.</span></div>
+
+  <div class="callout">
+    <div class="label">Demo posture</div>
+    <p>You are not <em>presenting</em>. You are <em>operating Northwind</em> in front of them. Move your cursor like a leader running a Monday. Read AI insights aloud as if they were a colleague speaking. The product does the selling — your job is to keep showing up at the next dollar moment.</p>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Spine &middot; 03</span>
+  </footer>
+</section>
+
+<!-- SCREEN 1 -->
+<section class="page">
+  <div class="brand-strip"></div>
+  <div class="section-head">
+    <h2>Screen-by-screen &middot; what to say</h2>
+    <span class="num">04</span>
+  </div>
+
+  <div class="screen-card">
+    <div class="head">
+      <span class="num">01</span>
+      <h3>Executive Dashboard</h3>
+      <span class="duration">2:30</span>
+    </div>
+
+    <p class="kicker">What's on screen</p>
+    <p class="secondary">6 KPIs &middot; alignment-conflict hero card &middot; 4E radar for the hero meeting &middot; AI insights feed &middot; recent meetings table &middot; 12-week trends &middot; department velocity strip &middot; Copilot prompt bar.</p>
+
+    <p class="kicker">Beat 1 &mdash; Anchor</p>
+    <p class="script">It's Monday, 7:42 am. Action completion is at 78%, decision velocity is up 8%, but meeting effectiveness just dipped 2 points. The system already knows why.</p>
+
+    <p class="kicker">Beat 2 &mdash; The hero card</p>
+    <div class="callout ai">
+      <div class="label">AI insight, read aloud</div>
+      <p>Product / Sales priority conflict on Q3 rollout &mdash; surfaced in two separate meetings, $1.2M revenue at stake. Recommended action: schedule cross-functional alignment meeting.</p>
+    </div>
+    <p class="script">This is the moment. The platform read the Q3 Steering, read your Sales pricing notes, and figured out you've made two incompatible promises to the same customers. Your team would have caught this on Friday afternoon. The agent caught it Monday at 7:34 am.</p>
+
+    <p class="kicker">Tips while on this screen</p>
+    <ul class="tips">
+      <li>Pause on the 4E radar &mdash; the dashed last-week ring shows the visible engagement drop. Read aloud: "speaker imbalance, decision points compressed at the end."</li>
+      <li>Hover the Product team in the velocity strip &mdash; the warning flag tells the story before you click.</li>
+    </ul>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Screen 1 &middot; 04</span>
+  </footer>
+</section>
+
+<!-- SCREEN 2 -->
+<section class="page">
+  <div class="brand-strip"></div>
+
+  <div class="screen-card">
+    <div class="head">
+      <span class="num">02</span>
+      <h3>Meeting detail &middot; Q3 Steering transcript</h3>
+      <span class="duration">3:30</span>
+    </div>
+
+    <p class="kicker">Setup</p>
+    <p class="secondary">From the dashboard, click <strong>Recent meetings &rarr; Q3 Enterprise Rollout &middot; Steering</strong>. The detail Sheet slides in on the right.</p>
+
+    <p class="kicker">Beat 1 &mdash; Frame the AI suggestion</p>
+    <p class="script">The system spotted the engagement drop and pre-wrote three fixes for next week's session. Apply AI agenda restructure recovers the next score to a projected 88. One click.</p>
+
+    <p class="kicker">Beat 2 &mdash; The transcript moment</p>
+    <p class="secondary">Switch to the <strong>Transcript</strong> tab.</p>
+    <p class="script">This is what your dispatcher would normally read for an hour. The system already did. Watch.</p>
+    <ul class="beats">
+      <li>Amelia announces the phased plan &rarr; <strong>Decision pill, 94% confidence.</strong></li>
+      <li>Derek flags the Sales commit conflict &rarr; <strong>Risk pill, 91% confidence, owner Derek.</strong></li>
+      <li>Ravi commits to the on-call rotation &rarr; <strong>Action pill with owner Talia and a due date.</strong></li>
+      <li>Stefan closes &rarr; <strong>4 actions extracted, owners assigned, due dates set.</strong></li>
+    </ul>
+
+    <div class="callout brand">
+      <div class="label">Talking-track gold</div>
+      <p>"Most platforms record the meeting. The good ones transcribe it. This one extracts decisions, assigns owners, syncs to Jira, and notices when two meetings just made conflicting decisions."</p>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Screen 2 &middot; 05</span>
+  </footer>
+</section>
+
+<!-- SCREEN 3 -->
+<section class="page">
+  <div class="brand-strip"></div>
+
+  <div class="screen-card">
+    <div class="head">
+      <span class="num">03</span>
+      <h3>Decision Graph &middot; the conflict made visible</h3>
+      <span class="duration">3:00</span>
+    </div>
+
+    <p class="kicker">Setup</p>
+    <p class="secondary">Sidebar &rarr; <strong>Decision Graph</strong>. The hero phased-plan decision pulses at center, with a dashed red edge to the conflicting Sales commit.</p>
+
+    <p class="kicker">Beat 1 &mdash; The visual punchline</p>
+    <p class="script">This is the cross-team alignment graph. Each node is a decision someone made. Each edge is a dependency or, in red and dashed, a conflict. That pulsing red line is what saved Northwind $1.2M this morning.</p>
+
+    <p class="kicker">Beat 2 &mdash; Walk the dependencies</p>
+    <ul class="beats">
+      <li>Auth migration &rarr; gates wave 1. (The blocked decision is also why we know Engineering is the critical path.)</li>
+      <li>Q3 themes &rarr; depends on the same auth migration. (One blocker, two delayed initiatives.)</li>
+      <li>Pause Feature X &rarr; frees engineers for Q3 themes. (The graph shows the coupling Product-Eng made yesterday.)</li>
+    </ul>
+
+    <p class="kicker">Beat 3 &mdash; The click that closes the demo</p>
+    <p class="script">Click the recommended action. The agent will schedule a 30-minute decision-only meeting with Product, Sales, Engineering, and CS owners, draft the agenda, and post it to your Slack #ops-room. By the time we finish this call, the alignment is already booked.</p>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Screen 3 &middot; 06</span>
+  </footer>
+</section>
+
+<!-- SCREEN 4 -->
+<section class="page">
+  <div class="brand-strip"></div>
+
+  <div class="screen-card">
+    <div class="head">
+      <span class="num">04</span>
+      <h3>Actions &amp; Decisions &middot; the extraction layer</h3>
+      <span class="duration">2:30</span>
+    </div>
+
+    <p class="kicker">Setup</p>
+    <p class="secondary">Sidebar &rarr; <strong>Actions &amp; Decisions</strong>. Stay on the Action items tab.</p>
+
+    <p class="kicker">Beat 1 &mdash; The extraction story</p>
+    <p class="script">Every action item here was extracted from a real meeting in the last week. AI confidence chip on every row. Owner, department, due date, priority. Three of these are already in Jira and Asana &mdash; that's the auto-sync workflow.</p>
+
+    <p class="kicker">Beat 2 &mdash; Switch to Decisions</p>
+    <p class="script">This is the audit trail. Every decision your leadership has made this quarter, who made it, in which meeting, with which dependencies. The conflict on the phased plan shows up here too &mdash; tinted red &mdash; with the alignment-risk percentage.</p>
+
+    <div class="callout brand">
+      <div class="label">If they push on accuracy</div>
+      <p>"Extraction confidence is at 96% on owned actions, 91% on decisions. Anything below 85% goes to your approval inbox automatically &mdash; we don't auto-create tickets the system isn't sure about."</p>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Screen 4 &middot; 07</span>
+  </footer>
+</section>
+
+<!-- SCREEN 5 -->
+<section class="page">
+  <div class="brand-strip"></div>
+
+  <div class="screen-card">
+    <div class="head">
+      <span class="num">05</span>
+      <h3>Knowledge Memory &middot; the wow moment</h3>
+      <span class="duration">2:30</span>
+    </div>
+
+    <p class="kicker">Setup</p>
+    <p class="secondary">Sidebar &rarr; <strong>Knowledge Memory</strong>. The hero conversation is pre-loaded.</p>
+
+    <p class="kicker">Beat 1 &mdash; The first answer</p>
+    <p class="script">"What did we decide about the Q3 enterprise rollout?" &mdash; this is the question your CEO asks at every Monday standup. Watch.</p>
+    <p class="secondary">The Copilot answers in plain English with the decision card inline, three citation chips, and two suggested follow-ups.</p>
+
+    <p class="kicker">Beat 2 &mdash; Click the followup</p>
+    <p class="script">"Show me the action items from that meeting." Click. Four cards, four owners, four due dates, three already synced to Jira / Asana.</p>
+
+    <div class="callout ai">
+      <div class="label">The line that lands</div>
+      <p>"This is the difference between a meeting tool and an operating system. Meeting tools answer 'what was said.' This answers 'what did we decide, who owns it, and is it done.'"</p>
+    </div>
+
+    <p class="kicker">Beat 3 &mdash; The trust beat</p>
+    <p class="script">Permission-aware retrieval. If R. Patel asks the same question, they only see the decisions and actions they have access to. Every retrieval is audit logged. SOC 2 Type II.</p>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Screen 5 &middot; 08</span>
+  </footer>
+</section>
+
+<!-- SCREEN 6 -->
+<section class="page">
+  <div class="brand-strip"></div>
+
+  <div class="screen-card">
+    <div class="head">
+      <span class="num">06</span>
+      <h3>Velocity + Risks + Workflows &middot; the time math</h3>
+      <span class="duration">3:00</span>
+    </div>
+
+    <p class="kicker">Beat 1 &mdash; Velocity (60s)</p>
+    <p class="secondary">Sidebar &rarr; <strong>Execution Velocity</strong>. Hero card shows the Product team bottleneck.</p>
+    <p class="script">Product runs 22 meetings a week &mdash; nearly 2x the company average &mdash; but their decision-to-completion is 8.4 days, the slowest in the company. Leadership runs 9 meetings a week and closes decisions in 3.4 days. The agent already drafted the consolidation plan.</p>
+
+    <p class="kicker">Beat 2 &mdash; Risks (60s)</p>
+    <p class="script">Sidebar &rarr; <strong>Risks &amp; Blockers</strong>. The same alignment conflict from the dashboard, but now with three ranked resolution options. Critical risks have AI fixes pre-attached. Average time-to-resolve has dropped 41% versus manual triage.</p>
+
+    <p class="kicker">Beat 3 &mdash; Workflows (60s)</p>
+    <p class="secondary">Sidebar &rarr; <strong>Workflows</strong>. Approval inbox at the top.</p>
+    <p class="script">Four agent decisions waiting on a human. Below: nine workflows running. Auto-extract decisions, sync to Jira, post Slack summary, escalate overdue actions, coach pre-meeting agendas. 38 extractions today, 22 ticket syncs. Saved $12.8K this week.</p>
+
+    <p class="kicker">The arithmetic that closes the demo</p>
+    <ul class="tips">
+      <li>Routine extractions: ~50 per week per dispatcher &times; 7 minutes saved each &equals; <strong>5.8 hr/week reclaimed per IC</strong>.</li>
+      <li>Across an 8-department organization, that's ~ <strong>460 hours/quarter</strong> of strategic work.</li>
+      <li>One avoided cross-team conflict (today's $1.2M) pays for the platform for years.</li>
+      <li>Average meeting effectiveness up 18 points after AI coaching &mdash; the productivity multiplier.</li>
+    </ul>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Screen 6 &middot; 09</span>
+  </footer>
+</section>
+
+<!-- SCREEN 7 -->
+<section class="page">
+  <div class="brand-strip"></div>
+
+  <div class="screen-card">
+    <div class="head">
+      <span class="num">07</span>
+      <h3>Settings &rarr; Integrations &middot; the trust beat</h3>
+      <span class="duration">2:00</span>
+    </div>
+
+    <p class="kicker">Why this is in the demo (and not "covered later")</p>
+    <p class="secondary">Every operations buyer's first real concern is "what does this break?" Showing Integrations up front turns the whole demo from <em>aspirational</em> to <em>buildable next quarter</em>.</p>
+
+    <p class="kicker">Beat 1 &mdash; Walk the connections</p>
+    <p class="script">Google Calendar for every meeting. Zoom and Microsoft Teams for transcripts. Slack for summaries. Salesforce and HubSpot for customer-facing decisions. Jira and Asana for action sync. Notion for the decision archive. All connected, all live.</p>
+
+    <p class="kicker">Beat 2 &mdash; Address the silent question</p>
+    <p class="script">MeetingIQ doesn't replace anything. Your meetings still happen in Zoom. Your tasks still live in Jira. Your decisions still get archived in Notion. We sit on top, read from all of them, and add the orchestration layer. If you turn MeetingIQ off tomorrow, every system you use today still works exactly the same.</p>
+
+    <div class="callout brand">
+      <div class="label">If they push on data security</div>
+      <p>SOC 2 Type II verified. Permission-aware retrieval &mdash; every answer respects each member's department-level access. Every agent action retained for 7 years. Decision explainability on every suggestion.</p>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Screen 7 &middot; 10</span>
+  </footer>
+</section>
+
+<!-- OBJECTIONS -->
+<section class="page">
+  <div class="brand-strip"></div>
+  <div class="section-head">
+    <h2>Objection handling</h2>
+    <span class="num">11</span>
+  </div>
+
+  <p class="secondary">The five things Stefan and his peers ask in every demo. Memorize the bolded answer.</p>
+
+  <table class="objections">
+    <thead>
+      <tr><th>If they say&hellip;</th><th>You say&hellip;</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>"How is this different from Otter.ai or Fellow?"</td>
+        <td>Those tools answer <strong>what was said</strong>. MeetingIQ answers <strong>what was decided, who owns it, what it depends on, and is it conflicting with another team's decision</strong>. We're an orchestration layer on top of the meeting transcript &mdash; that's a different product category.</td>
+      </tr>
+      <tr>
+        <td>"Will leadership trust the AI to extract decisions?"</td>
+        <td>Default everything to <strong>Human Approval</strong>. Owners get a Slack notification with the AI-extracted action and click <em>Approve</em> or <em>Edit</em>. After 30 days they shift the toggles to Auto themselves &mdash; once they see it's right 9 times out of 10, the platform earns its way in.</td>
+      </tr>
+      <tr>
+        <td>"What's the ROI?"</td>
+        <td>One avoided cross-team conflict pays for the year. Across our reference customers: <strong>5.8 hours / week reclaimed per IC, 41% faster decision velocity, 18-point lift in meeting effectiveness</strong>. Average payback: <strong>3 months</strong>.</td>
+      </tr>
+      <tr>
+        <td>"How long is implementation?"</td>
+        <td>One week to read-only. Three weeks to first AI-extracted action. Eight weeks to full agent workflows on. We start with one team's recurring meetings &mdash; once the leaders see it work, they pull us into everything.</td>
+      </tr>
+      <tr>
+        <td>"What about privacy &mdash; we have sensitive leadership meetings."</td>
+        <td>Sensitive meetings can be classified at the calendar level. Transcripts are encrypted at rest, retrieval is permission-aware so only authorized members can ask the Knowledge layer about them, and every read is audit logged. <strong>You stay in control of who sees what.</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Objections &middot; 11</span>
+  </footer>
+</section>
+
+<!-- CLOSE -->
+<section class="page">
+  <div class="brand-strip"></div>
+  <div class="section-head">
+    <h2>The close</h2>
+    <span class="num">12</span>
+  </div>
+
+  <p class="caption">Closing line &middot; what to say last</p>
+  <p class="script">Stefan, here's what we just watched. The platform spotted three things your team would have spent four hours figuring out &mdash; the Q3 alignment conflict, the Product team bottleneck, the four meeting fixes for tomorrow. It picked the action with the dollar number on it. It executed two of them while we were talking. That's not a roadmap. That's Monday morning at Northwind. The only question is whether you want it on your fleet by next quarter, or the one after that.</p>
+
+  <div class="close">
+    <div class="label">The push</div>
+    <h2>Let's get a 30-day pilot on Leadership and one product team.</h2>
+    <p class="sub">Two teams, real meetings, three AI capabilities live. If the savings don't pay for the pilot, you don't pay for the pilot. I can have a deployment lead on a call with your team this week and Calendar + Zoom flowing in seven days. What's stopping us?</p>
+  </div>
+
+  <p class="kicker">Three concrete next-step asks (pick one)</p>
+  <ul class="beats">
+    <li>30-minute pilot scoping call this week with two team leads and our deployment engineer.</li>
+    <li>Read-only Calendar + Zoom connection (NDA in place by Friday) so the next demo runs on <em>your</em> live meetings.</li>
+    <li>Reference call with a 200-person company that shipped MeetingIQ last quarter.</li>
+  </ul>
+
+  <div class="callout brand">
+    <div class="label">If they hesitate</div>
+    <p>"What would have to be true on this screen for you to say yes?" Then shut up. The answer they give is your spec for the follow-up.</p>
+  </div>
+
+  <footer class="page-footer">
+    <span>MeetingIQ &middot; Confidential</span>
+    <span class="seq">Close &middot; 12</span>
+  </footer>
+</section>
+
+</body>
+</html>

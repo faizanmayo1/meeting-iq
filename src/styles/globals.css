@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Editorial palette — warm off-white paper, deep ink, single warm accent. */
+    --canvas: 36 38% 96%;            /* #F8F5EF — warm off-white */
+    --surface: 0 0% 100%;
+    --subtle: 36 28% 94%;
+    --muted: 36 22% 90%;
+
+    --border-soft: 36 22% 92%;
+    --border-default: 35 18% 86%;
+    --border-strong: 35 14% 74%;
+
+    --ink-primary: 28 22% 8%;        /* warm near-black */
+    --ink-secondary: 28 16% 22%;
+    --ink-muted: 30 10% 42%;
+    --ink-disabled: 32 10% 66%;
+    --ink-invert: 36 38% 98%;        /* paper white */
+
+    /* Brand — burgundy / burnt sienna spectrum (single restrained accent) */
+    --brand-50:  10 60% 95%;         /* #FAEEEA */
+    --brand-100: 10 55% 90%;
+    --brand-300: 10 45% 65%;
+    --brand-500: 10 56% 38%;         /* #9C3B2C — the burnt-burgundy primary */
+    --brand-600: 10 60% 30%;
+    --brand-700: 12 65% 22%;
+    --brand-900: 14 70% 12%;
+
+    /* Functional semantic — kept restrained, paper-friendly */
+    --success-50: 90 32% 92%;
+    --success-500: 105 32% 32%;       /* #4F6B3A — moss / olive */
+    --success-700: 105 36% 22%;
+
+    --warning-50: 38 70% 92%;
+    --warning-500: 32 78% 42%;        /* #BC7A1F — amber */
+    --warning-700: 30 80% 30%;
+
+    --danger-50: 6 60% 94%;
+    --danger-500: 4 65% 44%;          /* #BC382E — softened red */
+    --danger-700: 4 70% 32%;
+
+    /* AI accent — deep ochre / antique gold (replaces teal-cyan) */
+    --accent-50:  38 70% 93%;
+    --accent-500: 36 70% 38%;         /* #A67522 — refined gold */
+    --accent-700: 32 75% 26%;
+  }
+
+  * {
+    border-color: hsl(var(--border-default));
+  }
+
+  html, body, #root { height: 100%; }
+
+  body {
+    background-color: hsl(var(--canvas));
+    background-image:
+      radial-gradient(ellipse 110% 50% at 50% -10%, hsl(var(--brand-500) / 0.045), transparent 70%),
+      radial-gradient(ellipse 80% 60% at 0% 0%, hsl(var(--accent-500) / 0.035), transparent 60%);
+    background-attachment: fixed;
+    color: hsl(var(--ink-primary));
+    font-family: "InterVariable", "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11", "ss03";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Newsreader optical sizing — display headings get slightly more bravura */
+  .font-display {
+    font-feature-settings: "kern", "liga", "ss03";
+    font-optical-sizing: auto;
+  }
+
+  ::selection {
+    background-color: hsl(var(--brand-500) / 0.18);
+    color: hsl(var(--brand-700));
+  }
+
+  .tnum, [data-num], .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--border-default));
+    border: 3px solid hsl(var(--canvas));
+    border-radius: 999px;
+  }
+  *::-webkit-scrollbar-thumb:hover { background: hsl(var(--border-strong)); }
+
+  :where(button, a, input, textarea, select, [role="switch"], [role="tab"]):focus-visible {
+    outline: 2px solid hsl(var(--brand-500) / 0.5);
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+}
+
+@layer components {
+  .ai-edge {
+    position: relative;
+  }
+  .ai-edge::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--brand-500) / 0.45), hsl(var(--accent-500) / 0.45));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .grain {
+    position: relative;
+  }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.7'/></svg>");
+  }
+
+  .reveal-stack > * {
+    opacity: 0;
+    animation: reveal-up 360ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  }
+  .reveal-stack > *:nth-child(1) { animation-delay: 20ms; }
+  .reveal-stack > *:nth-child(2) { animation-delay: 70ms; }
+  .reveal-stack > *:nth-child(3) { animation-delay: 120ms; }
+  .reveal-stack > *:nth-child(4) { animation-delay: 170ms; }
+  .reveal-stack > *:nth-child(5) { animation-delay: 220ms; }
+  .reveal-stack > *:nth-child(6) { animation-delay: 270ms; }
+  .reveal-stack > *:nth-child(n+7) { animation-delay: 320ms; }
+
+  @keyframes reveal-up {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-stack > * { animation: none; opacity: 1; transform: none; }
+  }
+}
