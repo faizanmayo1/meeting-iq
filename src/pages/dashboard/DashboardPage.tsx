@@ -1,56 +1,60 @@
 import {
-  CalendarDays,
-  Download,
   Sparkles,
   ArrowRight,
-  GitMerge,
+  Download,
+  Bot,
+  User,
+  X,
+  CalendarDays,
+  AlertTriangle,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardCaption, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { KPICard } from "@/components/data-display/KPICard";
+import { Sparkline } from "@/components/data-display/Sparkline";
 import { TrendChart } from "@/components/data-display/TrendChart";
-import { AIInsightCard } from "@/components/ai/AIInsightCard";
-
-import { CopilotPromptBar } from "@/features/dashboard/CopilotPromptBar";
-import { FourERadar } from "@/features/dashboard/FourERadar";
-import { RecentMeetingsTable } from "@/features/dashboard/RecentMeetingsTable";
-import { DepartmentVelocityStrip } from "@/features/dashboard/DepartmentVelocityStrip";
 
 import { KPIS } from "@/mocks/seed/kpis";
-import { INSIGHTS } from "@/mocks/seed/insights";
-import { MEETINGS, HERO_MEETING, fourEAvg } from "@/mocks/seed/meetings";
 import { RISKS } from "@/mocks/seed/risks";
 import { DEPT_VELOCITY, VELOCITY_12W } from "@/mocks/seed/velocity";
-import { TENANT } from "@/mocks/seed/users";
+import { AI_DECISIONS } from "@/mocks/seed/insightsAI";
+import { cn } from "@/lib/utils";
+import { formatBy } from "@/lib/format";
+
+const TREND_SERIES = [
+  { key: "followThrough",     label: "Follow-through %", color: "hsl(var(--brand-500))" },
+  { key: "decisionVelocity",  label: "Decision velocity", color: "hsl(var(--accent-500))" },
+  { key: "fourE",             label: "Avg 4E score",      color: "hsl(var(--success-500))" },
+];
+
+const OUTCOME_ICON = { auto: Bot, human: User, rejected: X } as const;
 
 export default function DashboardPage() {
-  // Hero risk for the spotlight card — the marquee alignment conflict.
   const heroRisk = RISKS.find((r) => r.id === "r-priority-conflict")!;
   const heroFix = heroRisk.resolutions?.find((r) => r.recommended);
-
-  // Recent meetings (top 5 most recent, mix of completed + in-progress).
-  const recentMeetings = MEETINGS.filter(
-    (m) => m.status === "completed" || m.status === "in_progress"
-  ).slice(0, 5);
-
-  // 4E for the hero meeting (the demo's narrative spine).
-  const heroFourE = HERO_MEETING.fourE;
-  const heroFourEPrev = HERO_MEETING.fourEPrev;
-  const heroFourEAvg = fourEAvg(heroFourE);
+  const recentActivity = AI_DECISIONS.slice(0, 6);
 
   return (
-    <div className="px-6 lg:px-8 py-6 lg:py-8 max-w-[1440px] mx-auto space-y-6 reveal-stack">
+    <div className="px-6 lg:px-10 py-8 lg:py-10 max-w-[1440px] mx-auto space-y-6 reveal-stack">
       <PageHeader
-        greeting="Monday · April 28 · 7:42 am"
-        title="Good morning, Stefan."
-        subtitle={
-          <>
-            Action completion at <span className="text-success-700 font-medium">78.4%</span> this week.
-            One alignment conflict on the Q3 rollout needs your call before 10:00.
-          </>
+        greeting={
+          <div className="inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.16em] text-ink-muted">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-success-500 opacity-60 animate-ping" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success-500" />
+              </span>
+              Live
+            </span>
+            <span className="text-ink-disabled">·</span>
+            <span>Mon · Apr 28 · 7:42 am</span>
+          </div>
         }
+        title="Overview"
+        subtitle="Northwind Inc. · 100 members · 8 departments"
         actions={
           <>
             <Button variant="secondary" size="md">
@@ -68,252 +72,303 @@ export default function DashboardPage() {
         }
       />
 
-      {/* KPI strip */}
-      <section
-        aria-label="Key performance indicators"
-        className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3"
-      >
-        {KPIS.map((k) => (
-          <KPICard key={k.label} kpi={k} />
-        ))}
+
+      {/* KPI grid */}
+      <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+        {KPIS.map((k) => {
+          const trendingUp = k.delta > 0;
+          const goodIfUp = !k.invertedDelta;
+          const positive = trendingUp ? goodIfUp : !goodIfUp;
+          const Arrow = trendingUp ? ArrowUpRight : ArrowDownRight;
+          return (
+            <div
+              key={k.label}
+              className={cn(
+                "group relative isolate overflow-hidden",
+                "rounded-xl bg-surface border border-border-soft p-4",
+                "shadow-[0_1px_0_rgba(8,6,22,0.02)]",
+                "transition-[border-color,transform] duration-200",
+                "hover:border-border hover:-translate-y-px"
+              )}
+            >
+              {/* hover gradient wash */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{
+                  background:
+                    "radial-gradient(120% 80% at 100% 0%, hsl(var(--brand-500) / 0.06), transparent 65%)",
+                }}
+              />
+              <p className="text-[10.5px] uppercase tracking-[0.12em] text-ink-muted font-medium leading-tight">
+                {k.label}
+              </p>
+              <p
+                className="mt-3 tabular-nums leading-none text-ink-primary"
+                style={{ fontSize: "2.125rem", fontWeight: 600, letterSpacing: "-0.025em" }}
+              >
+                {formatBy(k.value, k.format)}
+              </p>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-0.5 text-[11px] font-mono tabular-nums font-medium px-1.5 py-0.5 rounded",
+                    positive ? "text-success-700 bg-success-50" : "text-danger-700 bg-danger-50"
+                  )}
+                >
+                  <Arrow className="h-3 w-3" strokeWidth={2.25} />
+                  {Math.abs(k.delta).toFixed(1)}%
+                </span>
+                <Sparkline data={k.trend} positive={positive} width={64} height={20} />
+              </div>
+            </div>
+          );
+        })}
       </section>
 
-      {/* Hero alignment-conflict spotlight (full width) */}
+      {/* Risk banner */}
       <Card className="ai-edge overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
-          <div className="lg:col-span-2 p-5 lg:p-6 border-b lg:border-b-0 lg:border-r border-border-soft">
-            <div className="flex items-center gap-2 flex-wrap mb-2">
-              <Badge tone="danger" dot size="sm">
-                Critical · alignment conflict
-              </Badge>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent-50 text-accent-700 text-[10px] font-medium uppercase tracking-[0.1em]">
-                <Sparkles className="h-3 w-3" /> AI ready
-              </span>
-              <span className="text-[11px] text-ink-muted">surfaced {heroRisk.age} ago</span>
+        <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr_auto] items-center gap-5 px-6 py-5">
+          <div className="flex items-start gap-4 min-w-0">
+            <div className="relative h-11 w-11 rounded-lg grid place-items-center bg-gradient-to-br from-danger-50 to-danger-50/40 text-danger-700 shrink-0 ring-1 ring-danger-500/15">
+              <AlertTriangle className="h-5 w-5" strokeWidth={2.25} />
+              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-danger-500 ring-2 ring-surface animate-pulse" />
             </div>
-            <h2 className="font-display text-h2 text-ink-primary tracking-tight leading-tight">
-              {heroRisk.title}
-            </h2>
-            <p className="mt-2 text-body text-ink-muted leading-relaxed max-w-2xl">
-              {heroRisk.detail}
-            </p>
-            <div className="mt-3 flex items-center flex-wrap gap-3 text-body-sm">
-              <span className="text-ink-secondary">
-                Discussed in
-                <span className="font-medium text-ink-primary"> Q3 Steering </span>
-                and
-                <span className="font-medium text-ink-primary"> Sales Pipeline Review </span>
-                — no joint resolution
-              </span>
-              <span className="text-ink-disabled">·</span>
-              <span className="text-success-700 font-medium tabular-nums">
-                ${(heroRisk.dollarImpact! / 1_000_000).toFixed(1)}M revenue at stake
-              </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge tone="danger" dot size="sm">
+                  Critical
+                </Badge>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent-50 text-accent-700 text-[10px] font-medium uppercase tracking-[0.12em] ring-1 ring-accent-500/15">
+                  <Sparkles className="h-3 w-3" /> AI ready
+                </span>
+                <span className="text-[11px] text-ink-muted">surfaced {heroRisk.age} ago</span>
+              </div>
+              <h2 className="mt-1.5 text-h3 text-ink-primary leading-snug">{heroRisk.title}</h2>
             </div>
           </div>
-          <div className="p-5 lg:p-6 flex flex-col justify-between gap-4">
-            <div>
-              <p className="text-caption uppercase tracking-[0.1em] text-ink-muted">
-                AI recommended action
-              </p>
-              <p className="mt-1 text-body font-medium text-ink-primary leading-snug">
-                {heroFix?.label}
-              </p>
-              <p className="mt-1 text-body-sm text-ink-muted leading-relaxed">
-                {heroFix?.description}
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button variant="ai" size="md">
-                <GitMerge className="h-4 w-4" />
-                Schedule alignment
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button variant="secondary" size="md">
-                See all options
-              </Button>
-            </div>
+          <div className="hidden lg:block min-w-0 pl-4 border-l border-border-soft">
+            <p className="text-[11px] uppercase tracking-[0.12em] text-ink-muted font-medium mb-1">
+              AI suggestion
+            </p>
+            <p className="text-body-sm text-ink-secondary leading-snug truncate">
+              {heroFix?.label}
+            </p>
+            <p className="text-[11px] mt-1">
+              <span className="text-success-700 font-medium tabular-nums">
+                ${(heroRisk.dollarImpact! / 1_000_000).toFixed(1)}M
+              </span>
+              <span className="text-ink-muted"> at stake · 30-min decision-only meeting</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="secondary" size="md">
+              Options
+            </Button>
+            <Button variant="ai" size="md">
+              <Sparkles className="h-4 w-4" />
+              Resolve
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </Card>
 
-      {/* 4E radar + AI insights */}
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <Card className="xl:col-span-2 overflow-hidden">
+      {/* Main chart + activity feed */}
+      <section className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
+        <Card className="overflow-hidden">
           <CardHeader className="flex flex-row items-end justify-between gap-3">
             <div>
-              <CardCaption>Meeting effectiveness · 4E</CardCaption>
-              <CardTitle className="mt-1">{HERO_MEETING.title}</CardTitle>
-              <p className="text-[11px] text-ink-muted mt-1">
-                Hero meeting · this week vs last week
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-caption uppercase tracking-[0.1em] text-ink-muted">Score</p>
-              <p className="text-kpi-sm tabular-nums text-ink-primary leading-none mt-0.5">
-                {heroFourEAvg}
-              </p>
-              <p
-                className={`text-[11px] tabular-nums font-medium mt-0.5 ${
-                  heroFourEPrev && fourEAvg(heroFourEPrev) > heroFourEAvg
-                    ? "text-warning-700"
-                    : "text-success-700"
-                }`}
-              >
-                {heroFourEPrev
-                  ? `${heroFourEAvg - fourEAvg(heroFourEPrev) >= 0 ? "+" : ""}${
-                      heroFourEAvg - fourEAvg(heroFourEPrev)
-                    } vs last week`
-                  : ""}
-              </p>
-            </div>
-          </CardHeader>
-          <div className="px-2 pb-5">
-            <FourERadar current={heroFourE} previous={heroFourEPrev} height={260} />
-          </div>
-          <div className="border-t border-border-soft px-5 py-3 flex items-center gap-2 bg-subtle/30">
-            <Sparkles className="h-3.5 w-3.5 text-accent-700 shrink-0" />
-            <p className="text-body-sm text-ink-secondary">
-              <span className="font-medium text-accent-700">Engagement -8 pts</span> driven by speaker imbalance.
-              AI agenda restructure projected to recover to 88 next week.
-            </p>
-          </div>
-        </Card>
-
-        <Card className="xl:col-span-1 flex flex-col">
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
-            <div>
-              <CardCaption>AI insights</CardCaption>
-              <CardTitle className="mt-1">{INSIGHTS.length} for review</CardTitle>
-            </div>
-            <Badge tone="accent" size="sm">
-              {INSIGHTS.length} new
-            </Badge>
-          </CardHeader>
-          <div className="px-3 pb-3 space-y-2 flex-1 overflow-y-auto">
-            {INSIGHTS.map((i) => (
-              <AIInsightCard key={i.id} insight={i} />
-            ))}
-          </div>
-        </Card>
-      </section>
-
-      {/* Recent meetings + 12-week trends */}
-      <section className="grid grid-cols-1 xl:grid-cols-5 gap-4">
-        <Card className="xl:col-span-3 overflow-hidden">
-          <CardHeader className="flex flex-row items-end justify-between gap-3">
-            <div>
-              <CardCaption>Recent meetings</CardCaption>
-              <CardTitle className="mt-1">
-                Today · {recentMeetings.length} of {TENANT.totalMeetings.toLocaleString()} this quarter
+              <CardCaption>Outcome trends · 12 weeks</CardCaption>
+              <CardTitle className="mt-1.5">
+                Follow-through, decision velocity, 4E
               </CardTitle>
             </div>
-            <button className="text-body-sm font-medium text-brand-600 hover:text-brand-700">
-              View all meetings →
-            </button>
+            <div className="flex items-center gap-3 text-[11px]">
+              {TREND_SERIES.map((s) => (
+                <span
+                  key={s.key}
+                  className="inline-flex items-center gap-1.5 text-ink-muted"
+                >
+                  <span
+                    className="h-2 w-2 rounded-full"
+                    style={{ background: s.color }}
+                  />
+                  {s.label}
+                </span>
+              ))}
+            </div>
           </CardHeader>
-          <RecentMeetingsTable meetings={recentMeetings} />
+          <div className="px-5 pb-5">
+            <TrendChart
+              data={VELOCITY_12W}
+              xKey="week"
+              series={TREND_SERIES}
+              height={260}
+              formatY={(v) => `${v.toFixed(0)}`}
+            />
+          </div>
         </Card>
 
-        <Card className="xl:col-span-2">
-          <CardHeader>
-            <CardCaption>Outcome trends · 12 weeks</CardCaption>
-            <CardTitle className="mt-1">Health</CardTitle>
+        <Card className="overflow-hidden flex flex-col">
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <div>
+              <CardCaption>Live activity</CardCaption>
+              <CardTitle className="mt-1.5">Agent decisions · today</CardTitle>
+            </div>
+            <Badge tone="accent" size="sm" dot>
+              Live
+            </Badge>
           </CardHeader>
-          <div className="px-5 pb-5 grid grid-cols-2 gap-x-3 gap-y-4">
-            <Mini label="Action follow-through" value="78%" delta="+3.6%" positive>
-              <TrendChart
-                data={VELOCITY_12W}
-                xKey="week"
-                series={[{ key: "followThrough", label: "Follow-through", color: "hsl(var(--success-500))" }]}
-                height={70}
-                hideAxis
-                formatY={(v) => `${v.toFixed(0)}%`}
-              />
-            </Mini>
-            <Mini label="Decision velocity" value="+12%" delta="+8.1%" positive>
-              <TrendChart
-                data={VELOCITY_12W}
-                xKey="week"
-                series={[{ key: "decisionVelocity", label: "Decisions / wk", color: "hsl(var(--brand-500))" }]}
-                height={70}
-                hideAxis
-              />
-            </Mini>
-            <Mini label="Avg 4E score" value="76" delta="-2.4" positive={false}>
-              <TrendChart
-                data={VELOCITY_12W}
-                xKey="week"
-                series={[{ key: "fourE", label: "4E", color: "hsl(var(--accent-500))" }]}
-                height={70}
-                hideAxis
-              />
-            </Mini>
-            <Mini label="Overdue rate" value="8%" delta="-3.4%" positive>
-              <TrendChart
-                data={VELOCITY_12W}
-                xKey="week"
-                series={[{ key: "overdue", label: "Overdue", color: "hsl(var(--warning-500))" }]}
-                height={70}
-                hideAxis
-                formatY={(v) => `${v.toFixed(0)}%`}
-              />
-            </Mini>
-          </div>
+          <ol className="px-5 pb-5 relative flex-1">
+            <span className="absolute left-[26px] top-1 bottom-1 w-px bg-border-soft" />
+            {recentActivity.map((d) => {
+              const Icon = OUTCOME_ICON[d.outcome];
+              return (
+                <li
+                  key={d.id}
+                  className="relative pl-9 py-2.5 first:pt-0 last:pb-0 group hover:bg-subtle/40 -mx-3 px-3 rounded-md transition-colors"
+                >
+                  <span
+                    className={cn(
+                      "absolute left-[8px] top-3 h-4 w-4 rounded-full ring-[3px] ring-surface grid place-items-center",
+                      d.outcome === "auto"
+                        ? "bg-accent-50 text-accent-700"
+                        : d.outcome === "human"
+                        ? "bg-brand-50 text-brand-700"
+                        : "bg-subtle text-ink-muted"
+                    )}
+                  >
+                    <Icon className="h-2.5 w-2.5" strokeWidth={2.5} />
+                  </span>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="text-body-sm font-medium text-ink-primary leading-snug pr-2">
+                      {d.action}
+                    </p>
+                    <span className="text-[10.5px] font-mono tabular-nums text-ink-muted shrink-0">
+                      {d.time}
+                    </span>
+                  </div>
+                  <p className="text-[11.5px] text-ink-muted leading-snug mt-0.5">
+                    {d.detail}
+                  </p>
+                  {d.saved && (
+                    <p className="text-[11px] text-success-700 font-medium mt-1 tabular-nums">
+                      {d.saved}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
         </Card>
       </section>
 
-      {/* Department velocity */}
+      {/* Department performance */}
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row items-end justify-between gap-3">
           <div>
-            <CardCaption>Execution velocity · by department</CardCaption>
-            <CardTitle className="mt-1">
-              Two outliers — Product overload, Leadership leading
+            <CardCaption>Department performance</CardCaption>
+            <CardTitle className="mt-1.5">
+              8 teams · ranked by follow-through
             </CardTitle>
           </div>
           <Badge tone="info" size="sm" dot>
             Updated 4s ago
           </Badge>
         </CardHeader>
-        <div className="px-5 pb-5">
-          <DepartmentVelocityStrip rows={DEPT_VELOCITY} />
+        <div className="overflow-hidden">
+          <table className="w-full text-body">
+            <thead className="border-y border-border-soft bg-subtle/40">
+              <tr className="text-left text-[10px] uppercase tracking-[0.12em] text-ink-muted font-medium">
+                <th className="px-6 py-2.5">Department</th>
+                <th className="px-3 py-2.5 text-right">Mtgs / wk</th>
+                <th className="px-3 py-2.5">Follow-through</th>
+                <th className="px-3 py-2.5 text-right">Decision → done</th>
+                <th className="px-3 py-2.5 text-right">4E avg</th>
+                <th className="px-3 py-2.5">12-wk</th>
+                <th className="px-6 py-2.5">Flag</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...DEPT_VELOCITY]
+                .sort((a, b) => b.followThroughPct - a.followThroughPct)
+                .map((d) => {
+                  const tone =
+                    d.followThroughPct >= 90
+                      ? "text-success-700"
+                      : d.followThroughPct >= 80
+                      ? "text-ink-primary"
+                      : d.followThroughPct >= 70
+                      ? "text-warning-700"
+                      : "text-danger-700";
+                  const barTone =
+                    d.followThroughPct >= 90
+                      ? "bg-success-500"
+                      : d.followThroughPct >= 80
+                      ? "bg-brand-500"
+                      : d.followThroughPct >= 70
+                      ? "bg-warning-500"
+                      : "bg-danger-500";
+                  return (
+                    <tr
+                      key={d.department}
+                      className="border-b border-border-soft last:border-b-0 hover:bg-subtle/40 transition-colors"
+                    >
+                      <td className="px-6 py-3.5 text-body-sm font-medium text-ink-primary">
+                        {d.department}
+                      </td>
+                      <td className="px-3 py-3.5 text-right font-mono tabular-nums text-body-sm text-ink-secondary">
+                        {d.meetingsPerWeek}
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <div className="flex items-center gap-2.5 max-w-[180px]">
+                          <div className="relative h-1.5 flex-1 rounded-full bg-subtle overflow-hidden">
+                            <div
+                              className={cn("absolute inset-y-0 left-0 rounded-full", barTone)}
+                              style={{ width: `${d.followThroughPct}%` }}
+                            />
+                          </div>
+                          <span
+                            className={cn(
+                              "font-mono tabular-nums text-body-sm font-medium shrink-0 w-9 text-right",
+                              tone
+                            )}
+                          >
+                            {d.followThroughPct}%
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3.5 text-right font-mono tabular-nums text-body-sm text-ink-secondary">
+                        {d.avgDecisionToCompletionDays.toFixed(1)}d
+                      </td>
+                      <td className="px-3 py-3.5 text-right font-mono tabular-nums text-body-sm text-ink-primary">
+                        {d.fourEAvg}
+                      </td>
+                      <td className="px-3 py-3.5">
+                        <Sparkline
+                          data={d.trend}
+                          positive={d.followThroughPct >= 75}
+                          width={88}
+                          height={20}
+                        />
+                      </td>
+                      <td className="px-6 py-3.5">
+                        {d.flag ? (
+                          <Badge tone={d.flag.tone} size="sm" dot>
+                            {d.flag.label}
+                          </Badge>
+                        ) : (
+                          <span className="text-[11px] text-ink-disabled">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
         </div>
       </Card>
-
-      {/* Copilot prompt bar */}
-      <CopilotPromptBar />
-    </div>
-  );
-}
-
-function Mini({
-  label,
-  value,
-  delta,
-  positive,
-  children,
-}: {
-  label: string;
-  value: string;
-  delta: string;
-  positive?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <p className="text-caption uppercase tracking-[0.1em] text-ink-muted">{label}</p>
-      <div className="flex items-baseline gap-2 mt-0.5">
-        <span className="text-kpi-sm tabular-nums text-ink-primary">{value}</span>
-        <span
-          className={`text-[11px] font-medium tabular-nums ${
-            positive ? "text-success-700" : "text-danger-700"
-          }`}
-        >
-          {delta}
-        </span>
-      </div>
-      <div className="mt-1 -mx-1.5">{children}</div>
     </div>
   );
 }

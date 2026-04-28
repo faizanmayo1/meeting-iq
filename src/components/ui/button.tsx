@@ -9,13 +9,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-brand-500 text-ink-invert hover:bg-brand-600 active:bg-brand-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_1px_2px_rgba(46,91,255,0.18)]",
+          "bg-brand-500 text-ink-invert hover:bg-brand-600 active:bg-brand-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_4px_-1px_rgba(47,47,228,0.32)]",
         secondary:
           "bg-surface text-ink-primary border border-border hover:bg-subtle hover:border-border-strong shadow-elev-1",
         ghost: "text-ink-secondary hover:bg-subtle hover:text-ink-primary",
         link: "text-brand-600 underline-offset-4 hover:underline px-0",
-        danger: "bg-danger-500 text-ink-invert hover:bg-danger-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_1px_2px_rgba(220,38,38,0.18)]",
-        ai: "bg-[linear-gradient(135deg,hsl(var(--brand-500)),hsl(var(--accent-500))_55%,hsl(var(--accent-700)))] bg-[length:140%_140%] hover:bg-[position:30%_30%] text-ink-invert shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_8px_-2px_rgba(124,58,237,0.32)]",
+        danger: "bg-danger-500 text-ink-invert hover:bg-danger-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_2px_4px_-1px_rgba(220,38,38,0.22)]",
+        ai: "bg-[linear-gradient(120deg,hsl(var(--brand-500))_0%,hsl(var(--brand-600))_45%,hsl(var(--accent-500))_100%)] bg-[length:160%_160%] hover:bg-[position:30%_30%] text-ink-invert shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_10px_-2px_rgba(47,47,228,0.34),0_0_0_1px_rgba(255,201,30,0.14)]",
       },
       size: {
         sm: "h-8 px-3 text-body-sm",

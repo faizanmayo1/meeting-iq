@@ -46,12 +46,12 @@ export function Sidebar() {
       {/* Brand */}
       <div className="relative h-14 px-5 flex items-center gap-2.5 border-b border-border-soft">
         <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/30 to-transparent" />
-        <div className="relative h-9 w-9 rounded-md bg-[linear-gradient(160deg,hsl(var(--brand-500)),hsl(var(--brand-700)))] grid place-items-center shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_2px_6px_-2px_rgba(122,46,28,0.4)]">
-          <span className="font-display italic font-medium text-ink-invert text-[18px] leading-none translate-y-[-1px]">M</span>
+        <div className="relative h-9 w-9 rounded-md bg-[linear-gradient(160deg,hsl(var(--brand-500)),hsl(var(--brand-700)))] grid place-items-center shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_2px_8px_-2px_rgba(47,47,228,0.4)]">
+          <span className="font-sans font-bold text-ink-invert text-[16px] leading-none">M</span>
           <span className="absolute -right-0.5 -bottom-0.5 h-2 w-2 rounded-full bg-accent-500 ring-2 ring-surface" />
         </div>
         <div className="flex flex-col leading-none">
-          <span className="font-display italic text-[18px] font-medium text-ink-primary tracking-tight">
+          <span className="font-sans text-[15px] font-semibold text-ink-primary tracking-tight">
             MeetingIQ
           </span>
           <span className="text-[9.5px] uppercase tracking-[0.18em] text-ink-muted mt-1 font-medium">

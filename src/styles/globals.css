@@ -4,48 +4,48 @@
 
 @layer base {
   :root {
-    /* Editorial palette — warm off-white paper, deep ink, single warm accent. */
-    --canvas: 36 38% 96%;            /* #F8F5EF — warm off-white */
+    /* Electric palette — cool light canvas, near-black indigo ink, electric-blue brand, gold AI accent. */
+    --canvas: 220 22% 98%;             /* #F9FAFC — almost white, faint cool tint */
     --surface: 0 0% 100%;
-    --subtle: 36 28% 94%;
-    --muted: 36 22% 90%;
+    --subtle: 220 18% 95%;
+    --muted: 220 14% 90%;
 
-    --border-soft: 36 22% 92%;
-    --border-default: 35 18% 86%;
-    --border-strong: 35 14% 74%;
+    --border-soft: 220 14% 92%;
+    --border-default: 220 12% 84%;
+    --border-strong: 220 10% 68%;
 
-    --ink-primary: 28 22% 8%;        /* warm near-black */
-    --ink-secondary: 28 16% 22%;
-    --ink-muted: 30 10% 42%;
-    --ink-disabled: 32 10% 66%;
-    --ink-invert: 36 38% 98%;        /* paper white */
+    --ink-primary: 244 56% 6%;         /* #080616 — client palette · near-black indigo */
+    --ink-secondary: 244 30% 22%;
+    --ink-muted: 244 14% 44%;
+    --ink-disabled: 244 10% 68%;
+    --ink-invert: 220 22% 98%;
 
-    /* Brand — burgundy / burnt sienna spectrum (single restrained accent) */
-    --brand-50:  10 60% 95%;         /* #FAEEEA */
-    --brand-100: 10 55% 90%;
-    --brand-300: 10 45% 65%;
-    --brand-500: 10 56% 38%;         /* #9C3B2C — the burnt-burgundy primary */
-    --brand-600: 10 60% 30%;
-    --brand-700: 12 65% 22%;
-    --brand-900: 14 70% 12%;
+    /* Brand — electric blue → deep navy spectrum (client palette) */
+    --brand-50:  240 78% 95%;
+    --brand-100: 240 76% 90%;
+    --brand-300: 240 74% 76%;
+    --brand-500: 240 78% 54%;          /* #2F2FE4 — client palette · primary electric */
+    --brand-600: 232 74% 33%;          /* #162E93 — client palette · hover */
+    --brand-700: 241 53% 21%;          /* #1A1953 — client palette · pressed */
+    --brand-900: 250 56% 6%;           /* #080616 — client palette · darkest */
 
-    /* Functional semantic — kept restrained, paper-friendly */
-    --success-50: 90 32% 92%;
-    --success-500: 105 32% 32%;       /* #4F6B3A — moss / olive */
-    --success-700: 105 36% 22%;
+    /* Functional semantic */
+    --success-50: 158 40% 92%;
+    --success-500: 158 60% 36%;
+    --success-700: 158 70% 24%;
 
-    --warning-50: 38 70% 92%;
-    --warning-500: 32 78% 42%;        /* #BC7A1F — amber */
-    --warning-700: 30 80% 30%;
+    --warning-50: 36 100% 92%;
+    --warning-500: 30 95% 48%;
+    --warning-700: 30 90% 32%;
 
-    --danger-50: 6 60% 94%;
-    --danger-500: 4 65% 44%;          /* #BC382E — softened red */
-    --danger-700: 4 70% 32%;
+    --danger-50: 4 60% 94%;
+    --danger-500: 4 65% 50%;
+    --danger-700: 4 70% 36%;
 
-    /* AI accent — deep ochre / antique gold (replaces teal-cyan) */
-    --accent-50:  38 70% 93%;
-    --accent-500: 36 70% 38%;         /* #A67522 — refined gold */
-    --accent-700: 32 75% 26%;
+    /* AI accent — refined gold (pairs with electric blue) */
+    --accent-50:  46 100% 92%;
+    --accent-500: 42 100% 56%;         /* #FFC91E — vivid gold for AI surfaces */
+    --accent-700: 36 90% 36%;
   }
 
   * {
@@ -57,19 +57,19 @@
   body {
     background-color: hsl(var(--canvas));
     background-image:
-      radial-gradient(ellipse 110% 50% at 50% -10%, hsl(var(--brand-500) / 0.045), transparent 70%),
-      radial-gradient(ellipse 80% 60% at 0% 0%, hsl(var(--accent-500) / 0.035), transparent 60%);
+      radial-gradient(ellipse 110% 50% at 50% -10%, hsl(var(--brand-500) / 0.06), transparent 70%),
+      radial-gradient(ellipse 80% 60% at 100% 0%, hsl(var(--accent-500) / 0.05), transparent 60%);
     background-attachment: fixed;
     color: hsl(var(--ink-primary));
-    font-family: "InterVariable", "Inter", ui-sans-serif, system-ui, sans-serif;
-    font-feature-settings: "ss01", "cv11", "ss03";
+    font-family: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-feature-settings: "kern", "liga", "ss03";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Newsreader optical sizing — display headings get slightly more bravura */
+  /* Display tightening for Geist at large sizes */
   .font-display {
-    font-feature-settings: "kern", "liga", "ss03";
+    font-feature-settings: "kern", "liga", "ss01", "ss03";
     font-optical-sizing: auto;
   }
 
@@ -148,5 +148,68 @@
 
   @media (prefers-reduced-motion: reduce) {
     .reveal-stack > * { animation: none; opacity: 1; transform: none; }
+  }
+
+  /* Drop cap utility (unused in current dashboard; preserved for future use) */
+  .drop-cap::first-letter {
+    font-family: "Geist", sans-serif;
+    font-size: 3.8em;
+    line-height: 0.85;
+    float: left;
+    margin: 0.06em 0.1em 0 -0.02em;
+    color: hsl(var(--brand-500));
+    font-weight: 700;
+  }
+
+  /* Editorial · marginalia card (the AI Editor's Note) */
+  .marginalia {
+    position: relative;
+    border-left: 1px solid hsl(var(--border-default));
+    padding-left: 1.5rem;
+  }
+  .marginalia::before {
+    content: "";
+    position: absolute;
+    left: -1px; top: 0;
+    width: 1px; height: 32px;
+    background: hsl(var(--brand-500));
+  }
+
+  /* Editorial · 2-column body text (used in the lede) */
+  .editorial-cols-2 {
+    column-count: 2;
+    column-gap: 2.5rem;
+    column-rule: 1px solid hsl(var(--border-soft));
+    text-align: justify;
+    hyphens: auto;
+  }
+
+  /* Editorial · "From the AI desk" entry — tonal bullet */
+  .ai-desk-entry {
+    position: relative;
+    padding-left: 1rem;
+  }
+  .ai-desk-entry::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: hsl(var(--brand-500));
+  }
+  .ai-desk-entry.is-warning::before { background: hsl(var(--warning-500)); }
+  .ai-desk-entry.is-danger::before { background: hsl(var(--danger-500)); }
+  .ai-desk-entry.is-accent::before { background: hsl(var(--accent-500)); }
+
+  /* Geist Mono · small-caps tracked label */
+  .smallcaps {
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: "Geist Mono", ui-monospace, monospace;
+    color: hsl(var(--ink-muted));
   }
 }
